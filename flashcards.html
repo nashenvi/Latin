@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Latin Flashcards</title>
+
+  <style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f9f9ff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 40px 0;
+  }
+
+  h1 {
+    margin-bottom: 1em;
+    color: #333;
+  }
+
+  #flashcard {
+    width: 500px;
+    height: 320px;
+    perspective: 1000px;
+    cursor: pointer;
+  }
+
+  .card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+  }
+
+  .card.flipped .card-inner {
+    transform: rotateY(180deg);
+  }
+
+  .card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 16px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    box-sizing: border-box;
+    font-size: 1.3em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .back {
+    transform: rotateY(180deg);
+    background-color: #eef2ff;
+  }
+
+  .centered-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    text-align: center;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    text-align: center;
+  }
+
+  th, td {
+    padding: 6px 10px;
+  }
+
+  th {
+    background-color: #dbe4ff;
+    font-weight: normal;
+    font-style: italic;
+  }
+
+  .gender-label {
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 8px;
+    color: #444;
+  }
+
+  button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 1em;
+    background-color: #4a60ff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  button:disabled {
+    background-color: #bbb;
+    cursor: not-allowed;
+  }
+
+  button:hover:not(:disabled) {
+    background-color: #3748d6;
+  }
+  </style>
+</head>
+<body>
+
+  <h1>Latin Flashcards</h1>
+
+  <div id="flashcard" class="card">
+    <div class="card-inner">
+      <div class="card-face front" id="cardFront">Load a file!</div>
+      <div class="card-face back" id="cardBack">Latin text.</div>
+    </div>
+  </div>
+
+  <button id="nextButton">Next Card</button>
+
+  <label for="lessonSelect">Choose a Lesson:</label>
+  <select id="lessonSelect">
+    <!-- Options will be added dynamically -->
+  </select>
+
+  <script>
+    const Lesson = [
+    `earth/land, noun, f, terra, terrae, terrae, terram, terrā, terrae, terrārum, terrīs, terrās, terrīs
+    gate, noun, f, porta, portae, portae, portam, portā, portae, portārum, portīs, portās, portīs
+    Mary, noun, f, Marīa, Marīae, Marīae, Marīam, Marīā, Marīae, Marīārum, Marīīs, Marīās, Marīīs
+    sailor, noun, m, nauta, nautae, nautae, nautam, nautā, nautae, nautārum, nautīs, nautās, nautīs
+    victory, noun, f, victōria, victōriae, victōriae, victōriam, victōriā, victōriae, victōriārum, victōriīs, victōriās, victōriīs
+    forest, noun, f, silva, silvae, silvae, silvam, silvā, silvae, silvārum, silvīs, silvās, silvīs
+    fame/glory, noun, f, glōria, glōriae, glōriae, glōriam, glōriā, glōriae, glōriārum, glōriīs, glōriās, glōriīs
+    he/she/it prays, verb, ōrat
+    they pray, verb, ōrant
+    he/she/it sees, verb, videt
+    they see, verb, vident
+    not, adv., nōn
+    he/she/it praises, verb, laudat
+    they praise, verb, laudant
+    province, noun, f, prōvincia, prōvinciae, prōvinciae, prōvinciam, prōvinciā, prōvinciae, prōvinciārum, prōvinciīs, prōvinciās, prōvinciīs`, // Lesson 1
+
+    `slave/servant, noun, m, servus, servī, servō, servum, servō, servī, servōrum, servīs, servōs, servīs
+    son, noun, m, fīlius, fīliī, fīliō, fīlium, fīliō, fīliī, fīliōrum, fīliīs, fīliōs, fīliīs
+    God, noun, m, Deus, Deī, Deō, Deum, Deō, deī, deōrum, deīs, deōs, deīs
+    friend, noun, m, amicus, amicī, amicō, amicum, amicō, amicī, amicōrum, amicīs, amicōs, amicīs
+    Christ, noun, m, Christus, Christī, Christō, Christum, Christō, -, -, -, -, -
+    Christian, noun, m, Chrīstiānus, Chrīstiānī, Chrīstiānō, Chrīstiānum, Chrīstiānō, Chrīstiānī, Chrīstiānōrum, Chrīstiānīs, Chrīstiānōs, Chrīstiānīs
+    and, conj, et
+    war, noun, n, bellum, bellī, bellō, bellum, bellō, bella, bellōrum, bellīs, bella, bellīs
+    sky/heaven, noun, n, caelum, caelī, caelō, caelum, caelō, caela, caelōrum, caelīs, caela, caelīs
+    kingdom/royal power, noun, n, rēgnum, rēgnī, rēgnō, rēgnum, rēgnō, rēgna, rēgnōrum, rēgnīs, rēgna, rēgnīs
+    reward, noun, n, praemium, praemiī, praemiō, praemium, praemiō, praemia, praemiōrum, praemiīs, praemia, praemiīs
+    danger, noun, n, perīculum, perīculī, perīculō, perīculum, perīculō, perīcula, perīculōrum, perīculīs, perīcula, perīculīs
+    command/power/empire, noun, n, imperium, imperiī, imperiō, imperium, imperiō, imperia, imperiōrum, imperiīs, imperia, imperiīs
+    he/she/it gave, verb, dedit
+    they gave, verb, dedērunt
+    sword, noun, m, gladius, gladiī, gladiō, gladium, gladiō, gladiī, gladiōrum, gladiīs, gladiōs, gladiīs
+    but, conjunction, sed
+    town, noun, n, oppidum, oppidī, oppidō, oppidum, oppidō, oppida, oppidōrum, oppidīs, oppida, oppidīs
+    Gaul (place), noun, f, Gallia, Galliae, Galliae, Galliam, Galliā, Galliae, Galliārum, Galliīs, Galliās, Galliīs
+    Gaul (person), noun, m, Gallus, Gallī, Gallō, Gallum, Gallō, Gallī, Galliōrum, Gallīs, Gallōs, Galliīs
+    Rōme (place), noun, f, Rōma, Rōmae, Rōmae, Rōmam, Rōmā, Rōmae, Rōmārum, Rōmīs, Rōmās, Rōmīs
+    Rōman (person), noun, m, Rōmanus, Rōmanī, Rōmanō, Rōmanum, Rōmanō, Rōmanī, Rōmanōrum, Rōmanīs, Rōmanōs, Rōmanīs
+    on account of, conj, propter (w. acc.)
+    with, prep, cum (w. abl.)
+    after/behind, prep, post (w. acc.)
+    in/on, prep, in (w. abl.)
+    I am, verb, sum
+    you are, verb, es
+    he/she/it is, verb, est
+    we are, verb, sumus
+    you (all) are, verb, estis
+    they are, verb, sunt
+    because, conj, quod
+    therefore/and so, conj, itaque
+    they inhabit, verb, incolunt
+    you (all) see, verb, vidētis
+    they conquered, verb, vīcērunt`, // Lesson 2
+
+    `law, noun, f, lēx, lēgis, lēgī, lēgem, lēge, lēgēs, lēgum, lēgibus, lēgēs, lēgibus
+    king, noun, m, rēx, rēgis, rēgī, rēgem, rēge, rēgēs, rēgum, rēgibus, rēgēs, rēgibus
+    leader, noun, m, dūx, dūcis, dūcī, dūcem, dūce, dūcēs, dūcum, dūcibus, dūcēs, dūcibus
+    light, noun, f, lūx, lūcis, lūcī, lūcem, lūce, lūcēs, lūcum, lūcibus, lūcēs, lūcibus
+    man, noun, m, homō, hominis, hominī, hominem, homine, hominēs, hominum, hominibus, hominēs, hominibus
+    commander in chief/general, noun, m, imperātor, imperātōris, imperātōrī, imperātōrem, imperātōre, imperātōrēs, imperātōrum, imperātōribus, imperātōrēs, imperātōribus
+    truth, noun, f, vēritās, vēritātis, vēritātī, vēritātem, vēritāte, vēritātēs, vēritātum, vēritātibus, vēritātēs, vēritātibus
+    Caesar, noun, m, Caesar, Caesaris, Caesarī, Caesarem, Caesare, Caesarēs, Caesarum, Caesaribus, Caesarēs, Caesaribus
+    safety/welfare/salvation, noun, f, salūs, salūtis, salūtī, salūtem, salūte, salūtēs, salūtum, salūtibus, salūtēs, salūtibus
+    voice/cry, noun, f, vōx, vōcis, vōcī, vōcem, vōce, vōcēs, vōcum, vōcibus, vōcēs, vōcibus
+    he/she/it heard, verb, audīvit
+    courage/virtue, noun, f, virtūs, virtūtis, virtūtī, virtūtem, virtūte, virtūtēs, virtūtum, virtūtibus, virtūtēs, virtūtibus
+    soldier, noun, m, mīles, mīlitis, mīlitī, mīlitem, mīlite, mīlitēs, mīlitum, mīlitibus, mīlitēs, mīlitibus
+    peace, noun, f, pāx, pācis, pācī, pācem, pāce, pācēs, pācum, pācibus, pācēs, pācibus
+    road/way, noun, f, via, viae, viae, viam, viā, viae, viārum, viīs, viās, viīs
+    people/nation, noun, m, populus, populī, populō, populum, populō, populī, populōrum, populīs, populōs, populīs
+    they fortified/they constructed (w. viam or viās), verb, mūnīvērunt
+    part, noun, f, pars, partis, partī, partem, parte, partēs, partum, partibus, partēs, partibus
+    hill, noun, m, collis, collis, collī, collem, colle, collēs, collum, collibus, collēs, collibus
+    enemy, noun, m, hostis, hostis, hostī, hostem, hoste, hostēs, hostium, hostibus, hostēs, hostibus
+    tribe, noun, f, gēns, gentis, gentī, gentem, gente, gentēs, gentium, gentibus, gentēs, gentibus
+    slaughter, noun, f, caedēs, caedis, caedī, caedem, caede, caedēs, caedium, caedibus, caedēs, caedibus
+    brother, noun, m, frāter, frātris, frātrī, frātrum, frātre, frātrēs, frātrum, frātribus, frātrēs, frātribus
+    father, noun, m, pāter, pātris, pātrī, pātrum, pātre, pātrēs, pātrum, pātribus, pātrēs, pātribus
+    mother, noun, f, māter, mātris, mātrī, mātrum, mātre, mātrēs, mātrum, mātribus, mātrēs, mātribus
+    mountain, noun, m, mōns, mōntis, mōntī, mōntem, mōnte, mōntēs, mōntum, mōntibus, mōntēs, mōntibus
+    shouting/shout, noun, m, clāmor, clāmōris, clāmōrī, clāmōrem, clāmōre, clāmōrēs, clāmōrum, clāmōribus, clāmōrēs, clāmōribus
+    chief/leading man, noun, m, princeps, prīncipis, prīncipī, prīncipem, prīncipe, prīncipēs, prīncipum, prīncipibus, prīncipēs, prīncipibus
+    occīdērunt
+    river, noun, n, flūmen, flūminis, flūminī, flūmen, flūmine, flūmina, flūminum, flūminibus, flūmina, flūminibus
+    journey/march/route, noun, n, iter, itineris, itinerī, iter, itinere, itinera, itinerum, itineribus, itinera, itineribus
+    body, noun, n, corpus, corporis, corporī, corpus, corpore, corpora, corporum, corporibus, corpora, corporibus
+    wound, noun, n, vulnus, vulneris, vulnerī, vulnus, vulnere, vulnera, vulnerum, vulneribus, vulnera, vulneribus
+    column (of soldiers)/army (on the march), noun, n, agmen, agminis, agminī, agmen, agmine, agmina, agminum, agminibus, agmina, agminibus
+    name, noun, n, nōmen, nōminis, nōminī, nōmen, nōmine, nōmina, nōminum, nōminibus, nōmina, nōminibus
+    world, noun, m, mundus, mundī, mundō, mundum, mundō, mundī, mundōrum, mundīs, mundōs, mundīs
+    he/she/it was, verb, erat
+    they were, verb, erant`, // Lesson 3
+
+    `arrival/coming, noun, m, adventus, adventūs, adventuī, adventum, adventū, adventūs, adventuum, adventibus, adventūs, adventibus
+    calvary, noun, m, equitātus, equitātūs, equitātuī, equitātum, equitātū, equitātūs, equitātuum, equitātibus, equitātūs, equitātibus
+    army, noun, m, exercitus, exercitūs, exercituī, exercitum, exercitū, exercitūs, exercituum, exercitibus, exercitūs, exercitibus
+    attack, noun, m, impetus, impetūs, impetuī, impetum, impetū, impetūs, impetuum, impetibus, impetūs, impetibus
+    fear, noun, m, metus, metūs, metuī, metum, metū, metūs, metuum, metibus, metūs, metibus
+    breath/spirit, noun, m, spīritus, spīritūs, spīrituī, spīritum, spīritū, spīritūs, spīrituum, spīritibus, spīritūs, spīritibus
+    harbor, noun, m, portus, portūs, portuī, portum, portū, portūs, portuum, portibus, portūs, portibus
+    senate, noun, m, senātus, senātūs, senātuī, senātum, senātū, senātūs, senātuum, senātibus, senātūs, senātibus
+    uī, um, ū, ūs, uu, ibus, ūs, ibus
+    in/into/against/upon/on, prep, in (w. acc.)
+    now, adv., nunc
+    however, conj, autem (postpositive)
+    they made, verb, fēcērunt
+    he/she/it came, verb, vēnit
+    they came, verb, vēnērunt`, // Lesson 4
+
+    `thing/affair, noun, f, rēs, rēī, rēī, rem, rē, rēs, rērum, rēbus, rēs, rēbus
+    faith/reliability/faithfulness, noun, f, fidēs, fidēī, fidēī, fidem, fidē, fidēs, fidērum, fidēbus, fidēs, fidēbus
+    battle lines, noun, f, aciēs, aciēī, aciēī, aciem, aciē, aciēs, aciērum, aciēbus, aciēs, aciēbus
+    hope, noun, f, spēs, spēī, spēī, spem, spē, spēs, spērum, spēbus, spēs, spēbus
+    they put/they placed, verb, posuērunt`, // Lesson 5
+
+    `camp, noun, n, -, -, -, -, -, castra, castrōrum, castrīs, castra, castrīs
+    baggage/baggage train, noun, n, -,-, -, -, -, impedīmenta, impedīmentōrum, impedīmentīs, impedīmenta, impedīmentīs
+    favor/influence/grace (Christian Latin), noun, f, grātia, grātiae, grātiae, grātiam, grātiā, -, -, -, -, -
+    thanks, noun, f, -, -, -, -, -, grātiae, grātiārum, grātiīs, grātiās, grātiīs
+    supply/abundance, noun, f, copia, copiae, copiae, copiam, copiā, -, -, -, -, -
+    troops/forces (military), noun, f, -, -, -, -, -, cōpiae, cōpiārum, cōpiīs, cōpiās, cōpiīs
+    they put/placed/pitched (w. castra), verb, posuērunt
+    they give (w. grātiās), verb, agunt` // Lesson 6
+  ];
+
+
+
+    let dictionary = [];
+    let currentEntry = null;
+
+    function parseLesson(rawText) {
+      const lines = rawText.trim().split('\n').filter(l => l.trim() !== '');
+      return lines.map(line => {
+        const parts = line.split(',');
+        const english = parts[0].trim();
+        const part = parts[1].trim();
+        const latin = parts.slice(2).map(s => s.trim());
+        return { english, part, latin };
+      });
+    }
+
+    // Populate dropdown
+    const lessonSelect = document.getElementById('lessonSelect');
+    Lesson.forEach((_, i) => {
+      const option = document.createElement('option');
+      option.value = i;
+      option.textContent = `Lesson ${i + 1}`;
+      lessonSelect.appendChild(option);
+    });
+
+    // Listen for selection
+    lessonSelect.addEventListener('change', () => {
+      dictionary = parseLesson(Lesson[lessonSelect.value]);
+      showNextCard();
+    });
+
+    // Initialize with first lesson
+    lessonSelect.value = 0;
+    dictionary = parseLesson(Lesson[0]);
+    showNextCard();
+
+    document.getElementById("flashcard").addEventListener("click", function() {
+      this.classList.toggle("flipped");
+    });
+
+    document.getElementById("nextButton").addEventListener("click", showNextCard);
+
+    function showNextCard() {
+      if (dictionary.length === 0) return;
+      currentEntry = dictionary[Math.floor(Math.random() * dictionary.length)];
+      document.getElementById("cardFront").innerHTML = `
+          <div class="centered-content">${currentEntry.english}</div>`;
+      let formattedLatin;
+      switch (currentEntry.part) {
+        case 'noun':
+          formattedLatin = formatNoun(currentEntry);
+          break;
+        default:
+          formattedLatin = `<div class="centered-content">${currentEntry.latin.join(" ")}</div>`;
+          break;
+      }
+      document.getElementById("cardBack").innerHTML = formattedLatin;
+      document.getElementById("flashcard").classList.remove("flipped");
+    }
+
+    function formatNoun(entry) {
+      let latinData = entry.latin;
+
+      // Convert to array if it's a string
+      if (typeof latinData === "string") {
+        latinData = latinData.replace(';', ',').split(',').map(s => s.trim());
+      }
+
+      const [gender, ...forms] = latinData;
+
+      const genderFull = {
+        m: "Masculine",
+        f: "Feminine",
+        n: "Neuter"
+      }[gender.toLowerCase()] || "Unknown";
+
+      const singularForms = forms.slice(0, 5);
+      const pluralForms = forms.slice(5, 10);
+
+      return `
+      <div style="display: flex; flex-direction: column; height: 100%; justify-content: flex-start; align-items: center; gap: 0.5em;">
+        <div style="font-weight: bold;">${genderFull}</div>
+        <table style="border-collapse: collapse; width: 100%; max-width: 280px;">
+          <thead>
+            <tr style="font-style: italic;">
+              <th style="padding: 0.25em 1em; text-align: center;">Singular</th>
+              <th style="padding: 0.25em 1em; text-align: center;">Plural</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${[0,1,2,3,4].map(i => `
+              <tr>
+                <td style="padding: 0.25em 1em; text-align: center;">${singularForms[i]}</td>
+                <td style="padding: 0.25em 1em; text-align: center;">${pluralForms[i]}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+      `;
+    }
+
+
+
+  </script>
+</body>
+</html>
