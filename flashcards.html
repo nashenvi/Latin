@@ -261,6 +261,14 @@
     they give (w. grātiās), verb, agunt` // Lesson 6
   ];
 
+const flipSound = new Audio('flip.wav');
+const correctSound = new Audio('correct.wav');
+
+// Preload the sounds by setting preload and forcing a load
+flipSound.preload = 'auto';
+flipSound.load();
+correctSound.preload = 'auto';
+correctSound.load();
 
 
     let dictionary = [];
@@ -299,6 +307,8 @@
 
     document.getElementById("flashcard").addEventListener("click", function() {
       this.classList.toggle("flipped");
+      flipSound.currentTime = 0; // rewind if already playing
+      flipSound.play();
     });
 
     document.getElementById("nextButton").addEventListener("click", showNextCard);
@@ -306,6 +316,8 @@
     function showNextCard() {
       if (dictionary.length === 0) return;
       currentEntry = dictionary[Math.floor(Math.random() * dictionary.length)];
+      correctSound.currentTime = 0;
+      correctSound.play();
       document.getElementById("cardFront").innerHTML = `
           <div class="centered-content">${currentEntry.english}</div>`;
       let formattedLatin;
