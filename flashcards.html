@@ -127,14 +127,26 @@
     </div>
   </div>
 
-  <button id="nextButton">Next Card</button>
+  <div id="buttonContainer" style="display: flex; gap: 12px; margin-top: 20px;">
+    <button id="markButton" style="background-color: #ffca28; color: #333;">Mark Card ★</button>
+    <button id="nextButton">Next Card→</button>
+  </div>
+  <span id="tempStar" style="font-size: 1.5em; color: gold; margin-left: 10px; display: none;">⭐</span>
 
-  <label for="lessonSelect">Choose a Lesson:</label>
-  <select id="lessonSelect">
-    <!-- Options will be added dynamically -->
-  </select>
+
+  <label for="lessonSelect">Use Ctrl to select multiple lessons:</label>
+
+<select id="lessonSelect" multiple size="4">
+  <!-- Options will be added dynamically -->
+</select>
 
   <script>
+/*      const Lesson = [
+      `earth/land, noun, f, terra, terrae, terrae, terram, terrā, terrae, terrārum, terrīs, terrās, terrīs
+      gate, noun, f, porta, portae, portae, portam, portā, portae, portārum, portīs, portās, portīs`,
+      `Mary, noun, f, Marīa, Marīae, Marīae, Marīam, Marīā, Marīae, Marīārum, Marīīs, Marīās, Marīīs
+      sailor, noun, m, nauta, nautae, nautae, nautam, nautā, nautae, nautārum, nautīs, nautās, nautīs`];*/
+
     const Lesson = [
     `earth/land, noun, f, terra, terrae, terrae, terram, terrā, terrae, terrārum, terrīs, terrās, terrīs
     gate, noun, f, porta, portae, portae, portam, portā, portae, portārum, portīs, portās, portīs
@@ -263,6 +275,7 @@
 
 const flipSound = new Audio('flip.wav');
 const correctSound = new Audio('correct.mp3');
+const markButton = document.getElementById("markButton");
 
 // Preload the sounds by setting preload and forcing a load
 flipSound.preload = 'auto';
@@ -273,6 +286,17 @@ correctSound.load();
 
     let dictionary = [];
     let currentEntry = null;
+    let shuffledDeck = [];
+    let cardIndex = 0;
+    let markedCards = [];
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
 
     function parseLesson(rawText) {
       const lines = rawText.trim().split('\n').filter(l => l.trim() !== '');
@@ -287,23 +311,66 @@ correctSound.load();
 
     // Populate dropdown
     const lessonSelect = document.getElementById('lessonSelect');
+    // Add special option for marked cards at the top of the menu
+const markedOption = document.createElement('option');
+markedOption.value = 'marked';
+markedOption.textContent = '★ Marked Cards';
+lessonSelect.appendChild(markedOption);
     Lesson.forEach((_, i) => {
       const option = document.createElement('option');
       option.value = i;
       option.textContent = `Lesson ${i + 1}`;
+      if (i === 0) option.selected = true; // Preselect first
       lessonSelect.appendChild(option);
     });
 
-    // Listen for selection
+
     lessonSelect.addEventListener('change', () => {
-      dictionary = parseLesson(Lesson[lessonSelect.value]);
+      const selectedOptions = Array.from(lessonSelect.selectedOptions);
+
+      if (selectedOptions.some(opt => opt.value === 'marked')) {
+        // Use marked cards only
+        dictionary = [...markedCards];
+      } else {
+        // Use selected lessons
+        const selectedLessons = selectedOptions.map(option => Lesson[option.value]);
+        dictionary = selectedLessons.flatMap(lessonData => parseLesson(lessonData));
+      }
+
+      shuffledDeck = shuffle([...dictionary]);
+      cardIndex = 0;
       showNextCard();
     });
 
-    // Initialize with first lesson
-    lessonSelect.value = 0;
-    dictionary = parseLesson(Lesson[0]);
-    showNextCard();
+
+
+  // Simulate user selecting the first option by triggering the event handler
+const event = new Event('change');
+lessonSelect.dispatchEvent(event);
+
+document.getElementById("markButton").addEventListener("click", () => {
+  if (!currentEntry) return;
+
+  // Check if it's already marked to prevent duplicates
+  const exists = markedCards.some(card =>
+    card.english === currentEntry.english &&
+    JSON.stringify(card.latin) === JSON.stringify(currentEntry.latin)
+  );
+  if (!exists) {
+    markedCards.push(currentEntry);
+  }
+  // Save original color
+    const originalColor = markButton.style.backgroundColor;
+
+    // Change color to flash color
+    markButton.style.backgroundColor = "yellow";
+
+    // After 800ms, revert to original color
+    setTimeout(() => {
+      markButton.style.backgroundColor = originalColor;
+    }, 800);
+
+});
 
     document.getElementById("flashcard").addEventListener("click", function() {
       this.classList.toggle("flipped");
@@ -314,12 +381,15 @@ correctSound.load();
     document.getElementById("nextButton").addEventListener("click", showNextCard);
 
     function showNextCard() {
-      if (dictionary.length === 0) return;
-      currentEntry = dictionary[Math.floor(Math.random() * dictionary.length)];
+      if (shuffledDeck.length === 0) return;
+
+      currentEntry = shuffledDeck[cardIndex];
       correctSound.currentTime = 0;
       correctSound.play();
+
       document.getElementById("cardFront").innerHTML = `
           <div class="centered-content">${currentEntry.english}</div>`;
+
       let formattedLatin;
       switch (currentEntry.part) {
         case 'noun':
@@ -331,7 +401,18 @@ correctSound.load();
       }
       document.getElementById("cardBack").innerHTML = formattedLatin;
       document.getElementById("flashcard").classList.remove("flipped");
+
+      cardIndex++;
+      if (cardIndex >= shuffledDeck.length) {
+        // Option 1: reshuffle for another round
+        shuffledDeck = shuffle([...dictionary]);
+        cardIndex = 0;
+
+        // Option 2: stop after one round (comment above 2 lines if so)
+        // document.getElementById("nextButton").disabled = true;
+      }
     }
+
 
     function formatNoun(entry) {
       let latinData = entry.latin;
