@@ -128,6 +128,7 @@
   </div>
 
   <div id="buttonContainer" style="display: flex; gap: 12px; margin-top: 20px;">
+    <button id="lastButton">← Last Card</button>
     <button id="markButton" style="background-color: #ffca28; color: #333;">Mark Card ★</button>
     <button id="nextButton">Next Card→</button>
   </div>
@@ -398,17 +399,12 @@ document.getElementById("markButton").addEventListener("click", () => {
       flipSound.play();
     });
 
+    document.getElementById("lastButton").addEventListener("click", showLastCard);
     document.getElementById("nextButton").addEventListener("click", showNextCard);
 
-    function showNextCard() {
-      if (shuffledDeck.length === 0) return;
-
-      currentEntry = shuffledDeck[cardIndex];
-      correctSound.currentTime = 0;
-      correctSound.play();
-
+    function updateCardDisplay() {
       document.getElementById("cardFront").innerHTML = `
-          <div class="centered-content">${currentEntry.english}</div>`;
+        <div class="centered-content">${currentEntry.english}</div>`;
 
       let formattedLatin;
       switch (currentEntry.part) {
@@ -419,19 +415,41 @@ document.getElementById("markButton").addEventListener("click", () => {
           formattedLatin = `<div class="centered-content">${currentEntry.latin.join(" ")}</div>`;
           break;
       }
+
       document.getElementById("cardBack").innerHTML = formattedLatin;
       document.getElementById("flashcard").classList.remove("flipped");
-
-      cardIndex++;
-      if (cardIndex >= shuffledDeck.length) {
-        // Option 1: reshuffle for another round
-        shuffledDeck = shuffle([...dictionary]);
-        cardIndex = 0;
-
-        // Option 2: stop after one round (comment above 2 lines if so)
-        // document.getElementById("nextButton").disabled = true;
-      }
     }
+
+
+    function showLastCard() {
+    if (shuffledDeck.length === 0) return;
+
+    cardIndex--;
+    if (cardIndex < 0) {
+      cardIndex = shuffledDeck.length - 1; // loop to last
+    }
+
+    currentEntry = shuffledDeck[cardIndex];
+    updateCardDisplay();
+    flipSound.currentTime = 0;
+    flipSound.play();
+  }
+
+
+
+  function showNextCard() {
+if (shuffledDeck.length === 0) return;
+
+cardIndex++;
+if (cardIndex >= shuffledDeck.length) {
+  cardIndex = 0; // loop to first
+}
+
+currentEntry = shuffledDeck[cardIndex];
+updateCardDisplay();
+correctSound.currentTime = 0;
+correctSound.play();
+}
 
 
     function formatNoun(entry) {
