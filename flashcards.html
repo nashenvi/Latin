@@ -126,6 +126,7 @@
       <div class="card-face back" id="cardBack">Latin text.</div>
     </div>
   </div>
+  <div id="cardCounter" style="margin-top: 12px; font-size: 1.1em; color: #555;">0 / 0</div>
 
   <div id="buttonContainer" style="display: flex; gap: 12px; margin-top: 20px;">
     <button id="lastButton">← Last Card</button>
@@ -231,7 +232,7 @@
     mountain, noun, m, mōns, mōntis, mōntī, mōntem, mōnte, mōntēs, mōntum, mōntibus, mōntēs, mōntibus
     shouting/shout, noun, m, clāmor, clāmōris, clāmōrī, clāmōrem, clāmōre, clāmōrēs, clāmōrum, clāmōribus, clāmōrēs, clāmōribus
     chief/leading man, noun, m, princeps, prīncipis, prīncipī, prīncipem, prīncipe, prīncipēs, prīncipum, prīncipibus, prīncipēs, prīncipibus
-    occīdērunt, verb, they killed
+    they killed, verb, occīdērunt
     river, noun, n, flūmen, flūminis, flūminī, flūmen, flūmine, flūmina, flūminum, flūminibus, flūmina, flūminibus
     journey/march/route, noun, n, iter, itineris, itinerī, iter, itinere, itinera, itinerum, itineribus, itinera, itineribus
     body, noun, n, corpus, corporis, corporī, corpus, corpore, corpora, corporum, corporibus, corpora, corporibus
@@ -250,7 +251,6 @@
     breath/spirit, noun, m, spīritus, spīritūs, spīrituī, spīritum, spīritū, spīritūs, spīrituum, spīritibus, spīritūs, spīritibus
     harbor, noun, m, portus, portūs, portuī, portum, portū, portūs, portuum, portibus, portūs, portibus
     senate, noun, m, senātus, senātūs, senātuī, senātum, senātū, senātūs, senātuum, senātibus, senātūs, senātibus
-    uī, um, ū, ūs, uu, ibus, ūs, ibus
     in/into/against/upon/on, prep, in (w. acc.)
     now, adv., nunc
     however, conj, autem (postpositive)
@@ -360,6 +360,15 @@ lessonSelect.appendChild(markedOption);
 
       shuffledDeck = shuffle([...dictionary]);
       cardIndex = 0;
+      if (shuffledDeck.length === 0) {
+  // Show empty message on both front and back
+  document.getElementById("cardFront").innerHTML = `
+    <div class="centered-content" style="color: #888;">This deck is empty</div>`;
+  document.getElementById("cardBack").innerHTML = `
+    <div class="centered-content" style="color: #aaa;">This deck is empty</div>`;
+    document.getElementById("cardCounter").textContent = `0 / 0`;
+  return;
+}
       showNextCard();
     });
 
@@ -418,6 +427,7 @@ document.getElementById("markButton").addEventListener("click", () => {
 
       document.getElementById("cardBack").innerHTML = formattedLatin;
       document.getElementById("flashcard").classList.remove("flipped");
+      document.getElementById("cardCounter").textContent = `${cardIndex + 1} / ${shuffledDeck.length}`;
     }
 
 
@@ -440,13 +450,13 @@ document.getElementById("markButton").addEventListener("click", () => {
   function showNextCard() {
 if (shuffledDeck.length === 0) return;
 
+
+currentEntry = shuffledDeck[cardIndex];
+updateCardDisplay();
 cardIndex++;
 if (cardIndex >= shuffledDeck.length) {
   cardIndex = 0; // loop to first
 }
-
-currentEntry = shuffledDeck[cardIndex];
-updateCardDisplay();
 correctSound.currentTime = 0;
 correctSound.play();
 }
