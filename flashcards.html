@@ -329,7 +329,7 @@ correctSound.load();
     let dictionary = [];
     let currentEntry = null;
     let shuffledDeck = [];
-    let cardIndex = 0;
+    let cardIndex = -1;
     let markedCards = [];
 
     function shuffle(array) {
@@ -380,7 +380,7 @@ lessonSelect.appendChild(markedOption);
       }
 
       shuffledDeck = shuffle([...dictionary]);
-      cardIndex = 0;
+      cardIndex = -1;
       if (shuffledDeck.length === 0) {
   // Show empty message on both front and back
   document.getElementById("cardFront").innerHTML = `
@@ -472,12 +472,12 @@ document.getElementById("markButton").addEventListener("click", () => {
 if (shuffledDeck.length === 0) return;
 
 
-currentEntry = shuffledDeck[cardIndex];
-updateCardDisplay();
 cardIndex++;
 if (cardIndex >= shuffledDeck.length) {
   cardIndex = 0; // loop to first
 }
+currentEntry = shuffledDeck[cardIndex];
+updateCardDisplay();
 correctSound.currentTime = 0;
 correctSound.play();
 }
