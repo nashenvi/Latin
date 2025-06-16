@@ -55,6 +55,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   .back {
@@ -137,20 +140,56 @@
   <span id="tempStar" style="font-size: 1.5em; color: gold; margin-left: 10px; display: none;">⭐</span>
 
 
-  <label for="lessonSelect">Use Ctrl to select multiple lessons:</label>
+  <div id="controlsPanel" style="margin-top: 24px; padding: 16px; border: 1px solid #ccc; border-radius: 8px; background-color: #f9f9f9; max-width: 600px;">
+  <div style="margin-bottom: 16px;">
+    <label for="lessonSelect" style="font-weight: bold;">Choose Lessons (Ctrl+Click to select multiple):</label><br>
+    <select id="lessonSelect" multiple size="4" style="width: 100%; margin-top: 6px; padding: 4px;">
+      <!-- Options added dynamically -->
+    </select>
+  </div>
 
-<select id="lessonSelect" multiple size="4">
-  <!-- Options will be added dynamically -->
-</select>
+  <div style="display: flex; gap: 40px; flex-wrap: wrap; margin-top: 12px;">
+    <div>
+      <div style="font-weight: bold; margin-bottom: 4px;">Translation Mode:</div>
+      <label style="display: block; margin-bottom: 4px;">
+        <input type="radio" name="mode" value="en-to-la" checked> English → Latin
+      </label>
+      <label style="display: block;">
+        <input type="radio" name="mode" value="la-to-en"> Latin → English
+      </label>
+    </div>
+
+    <div>
+      <div style="font-weight: bold; margin-bottom: 4px;">Dictionary Type:</div>
+      <label style="display: block; margin-bottom: 4px;">
+        <input type="radio" name="dict" value="words" checked> Vocabulary
+      </label>
+      <label style="display: block;">
+        <input type="radio" name="dict" value="sentences"> Sentences
+      </label>
+    </div>
+  </div>
+</div>
+
+
+
 
   <script>
-/*      const Lesson = [
-      `earth/land, noun, f, terra, terrae, terrae, terram, terrā, terrae, terrārum, terrīs, terrās, terrīs
-      gate, noun, f, porta, portae, portae, portam, portā, portae, portārum, portīs, portās, portīs`,
-      `Mary, noun, f, Marīa, Marīae, Marīae, Marīam, Marīā, Marīae, Marīārum, Marīīs, Marīās, Marīīs
-      sailor, noun, m, nauta, nautae, nautae, nautam, nautā, nautae, nautārum, nautīs, nautās, nautīs`];*/
+/*        const Lesson = [
+  `earth/land, noun, f, terra, terrae, terrae, terram, terrā, terrae, terrārum, terrīs, terrās, terrīs
+  gate, noun, f, porta, portae, portae, portam, portā, portae, portārum, portīs, portās, portīs`,
+  `Mary, noun, f, Marīa, Marīae, Marīae, Marīam, Marīā, Marīae, Marīārum, Marīīs, Marīās, Marīīs
+  sailor, noun, m, nauta, nautae, nautae, nautam, nautā, nautae, nautārum, nautīs, nautās, nautīs`];
+  const Lesson2 = [
+    `Mary praises., sent, Marīa laudat.
+    The sailor praises., sent, Nauta laudat.
+    The sailors praise., sent, Nautae laudant.`,
+    `Mary praises., sent., Marīa ōrat.
+    The sailor prays., sent, Nauta ōrat.
+    The sailors pray., sent, Nautae ōrant.`
+  ];*/
 
-    const Lesson = [
+  const Lesson = [
     `earth/land, noun, f, terra, terrae, terrae, terram, terrā, terrae, terrārum, terrīs, terrās, terrīs
     gate, noun, f, porta, portae, portae, portam, portā, portae, portārum, portīs, portās, portīs
     Mary, noun, f, Marīa, Marīae, Marīae, Marīam, Marīā, Marīae, Marīārum, Marīīs, Marīās, Marīīs
@@ -273,190 +312,483 @@
     troops/forces (military), noun, f, -, -, -, -, -, cōpiae, cōpiārum, cōpiīs, cōpiās, cōpiīs
     they put/placed/pitched (w. castra), phrs, posuērunt
     they give (w. grātiās), phrs, agunt`, // Lesson 6
-   `great/large, adj., magnus -a -um
-   high/deep, adj., altus -a -um
-   good, adj., bonus -a -um
-   long, adj., longus -a -um
-   bad, adj., malus -a -um
-   much (pl. many), adj., multus -a -um
-   holy/saint, adj., sānctus -a -um
-   first, adj., prīmus -a -um
-   narrow, adj., angustus -a -um
-   remaining/the rest of, adj., reliquus -a -um
-   safe, adj., tūtus -a -um
-   Roman (adj.), adj., Rōmānus -a -um
-   Christian, adj., Chrīstiānus -a -um
-   in front of/on behalf of (w. abl.), prep, prō
-   scarcity/want, noun, f, inopia, inopiae, inopiae, inopiam, inopiā, inopiae, inopiārum, inopiīs, inopiās, inopiīs
-   master/Lord, noun, m, dominus, dominī, dominō, dominum, dominō, dominī, dominōrum, dominīs, dominōs, dominīs
-   wall, noun, m, mūrus, mūrī, mūrō, mūrum, mūrō, mūrī, mūrōrum, mūrīs, mūrōs, mūrīs
-   grain (pl. crops), noun, n, frūmentum, frūmentī, frūmentō, frūmentum, frūmentō, frūmenta, frūmentōrum, frūmentīs, frūmenta, frūmentīs
-   legion, noun, f, legiō, legiōnis, legiōnī, legiōnem, legiōne, legiōnēs, legiōnum, legiōnibus, legiōnēs, legiōnibus`, // lESSON 7
-   `heavy/severe/serious, adj., gravis -e
-short, adj., brevis -e
-common, adj., commūnis -e
-difficult, adj., difficilis -e
-easy, adj., facilis -e
-brave/strong, adj., fortis -e
-noble/renowned, adj., nōbilis -e
-all/every, adj., omnis -e
-eager/desirous, adj., cupidus -a -um (w. gen.)
-full, adj., plēnus -a -um (w. gen./abl.)
-neighboring/next, adj., fīnitimus -a -um (w. dat.)
-like/similar, adj., similis -e (w. gen./dat.)
-Jesus, noun, m, Jēsūs, Jēsū, Jēsū, Jēsūm, Jēsū, -, -, -, -, -
-both...and, - , et...et
-what, pro., quid
-at dawn, phrs, prīmā lūce
-city, noun, f, urbs, urbis, urbī, urbem, urbe, urbēs, urbum, urbibus, urbēs, urbibus
-bridge, noun, m, pōns, pontis, pontī, pontem, ponte, pontēs, pontium, pontibus, pontēs, pontibus
-standard/signal/sign, noun, n, signum, signī, signō, signum, signō, signa, signōrum, signīs, signa, signīs
-horseman (pl. cavalry), noun, m, eques, equitis, equitī, equitem, equite, equitēs, equitum, equitibus, equitēs, equitibus
-2nd decl. adj. endings (m/f), noun, m/f, grav-is, grav-is, grav-ī, grav-em, grav-ī, grav-ēs, grav-ium, grav-ibus, grav-ēs, grav-ibus
-2nd decl. adj. endings (n), noun, n, grav-e, grav-is, grav-ī, grav-e, grav-ī, grav-ia, grav-ium, grav-ibus, grav-ia, grav-ibus`, //lesson 8
-`1st conj present: praise, verb, laudō 1st tr., laud-ō, laud-ās, laud-at, laud-āmus, laud-ātis, laud-ant
-to praise, vpp., 1 tr., laudō/laudāre/laudāvī/laudātus
-to seize, vpp., 1 tr., occupō/occupāre/occupāvī/occupātus
-to attack/assault, vpp., 1 tr., oppugnō/oppugnāre/oppugnāvī/oppugnātus
-to beg/pray, vpp., 1 tr., ōrō/ōrāre/ōrāvī/ōrātus
-to prepare/get ready,vpp., 1 tr., parō/parāre/parāvī/parātus
-to fight, vpp., 1 tr., pugnō/pugnāre/pugnāvī/pugnātus
-to overcome/conquer/surpass, vpp., 1 tr., superō/superāre/superāvī/superātus
-to carry, vpp., 1 tr., portō/portāre/portāvī/portātus
-centurion, noun, m, centuriō, centuriōnis, centuriōnī, centuriōnem, centuriōne, centuriōnēs, centuriōnum, centuriōnibus, centuriōnēs, centuriōnibus
-number, noun, m, numerus, numerī, numerō, numerum, numerō, numerī, numerōrum, numerīs, numerōs, numerīs
-1st conj imperfect: was praising, verb, laudō 1st tr., laud-ābam, laud-ābās, laud-ābat, laud-ābāmus, laud-ābātis, laud-ābant
-1st conj future: will praise, verb, laudō 1st tr., laud-ābō, laud-ābis, laud-ābit, laud-ābimus, laud-ābitis, laud-ābunt
-to give, vpp., 1 tr., dō/dāre/dedī/datus
-to call, vpp., 1 tr., vocō/vocāre/vocāvī/vocātus
-meanwhile, adverb, interim
-death, noun, f, mors, mortis, mortī, mortem, morte, mortēs, mortium, mortibus, mortēs, mortibus
-winter quarters, noun, n, -, -, -, -, -, hīberna, hībernōrum, hībernīs, hīberna, hībernīs
-where, adv., ubi
-who, pron, quis
-what, pron, quid
-why, adv., cūr
-place, noun, m, locus, locī, locō, locum, locō, loca, locōrum, locīs, loca, locīs
-unfavorable/another's/foreign, adj., aliēnus -a -um`, //lesson 9
-`2nd conj present: warn/advise, verb, moneō 2nd tr., mon-eō, mon-ēs, mon-et, mon-ēmus, mon-ētis, mon-ent
-2nd conj imperfect: was warning/advising, verb, moneō 2nd tr., mon-ēbam, mon-ēbās, mon-ēbat, mon-ēbāmus, mon-ēbātis, mon-ēbant
-2nd conj future : will warn/advise, verb, moneō 2nd tr., mon-ēbō, mon-ēbis, mon-ēbit, mon-ēbimus, mon-ēbitis, mon-ēbunt
-to warn/advise, vpp., 2 tr., moneō/monēre/monuī/monitus
-to fear, vpp., 2 tr., timeō/timēre/timuī/-
-to have, vpp., 2 tr., habeō/habēre/habuī/habitus
-arms, noun, n, -, -, -, -, -, arma, armōrum, armīs, arma, armīs`, // Lesson 10
-`I/we, noun, -, ego, meī, mihi, mē, mē, nōs, nostrī/nostrum, nōbis, nōs, nōbis
-to see, vpp., 1 tr., videō/vidēre/vīdī/vīsus
-often, adv., saepe
-you/you (all), noun, -, tū, tuī, tibi, tē, tē, vōs, vestrī/vestrum, vōbīs, vōs, vōbīs
-to hold, vpp., 2 tr., teneō/tenēre/tenuī/tentus
-to move, vpp., 2 tr., moveō/movēre/mōvī/mōtus
-nevertheless, adv., tamen
-nor/and...not, conj, neque
-he/they, noun, m, is, ējus, eī, eum, eō, eī, eōrum, eīs, eōs, eīs
-she/they, noun, f, ea, ējus, eī, eam, eā, eae, eārum, eīs, eās, eīs
-it/they, noun, n, id, ējus, eī, id, eō, ea, eōrum, eīs, ea, eīs
-him/her/itself/themselves, noun, -, -,suī, sibi, sē, sē, -, -, -, -, -
-also, adv., etiam
-for (conj.), conj, enim (postpositive)` // Lesson 11
+
+    `great/large, adj., magnus -a -um
+    high/deep, adj., altus -a -um
+    good, adj., bonus -a -um
+    long, adj., longus -a -um
+    bad, adj., malus -a -um
+    much (pl. many), adj., multus -a -um
+    holy/saint, adj., sānctus -a -um
+    first, adj., prīmus -a -um
+    narrow, adj., angustus -a -um
+    remaining/the rest of, adj., reliquus -a -um
+    safe, adj., tūtus -a -um
+    Roman (adj.), adj., Rōmānus -a -um
+    Christian, adj., Chrīstiānus -a -um
+    in front of/on behalf of (w. abl.), prep, prō
+    scarcity/want, noun, f, inopia, inopiae, inopiae, inopiam, inopiā, inopiae, inopiārum, inopiīs, inopiās, inopiīs
+    master/Lord, noun, m, dominus, dominī, dominō, dominum, dominō, dominī, dominōrum, dominīs, dominōs, dominīs
+    wall, noun, m, mūrus, mūrī, mūrō, mūrum, mūrō, mūrī, mūrōrum, mūrīs, mūrōs, mūrīs
+    grain (pl. crops), noun, n, frūmentum, frūmentī, frūmentō, frūmentum, frūmentō, frūmenta, frūmentōrum, frūmentīs, frūmenta, frūmentīs
+    legion, noun, f, legiō, legiōnis, legiōnī, legiōnem, legiōne, legiōnēs, legiōnum, legiōnibus, legiōnēs, legiōnibus`, // lESSON 7
+
+    `heavy/severe/serious, adj., gravis -e
+    short, adj., brevis -e
+    common, adj., commūnis -e
+    difficult, adj., difficilis -e
+    easy, adj., facilis -e
+    brave/strong, adj., fortis -e
+    noble/renowned, adj., nōbilis -e
+    all/every, adj., omnis -e
+    eager/desirous, adj., cupidus -a -um (w. gen.)
+    full, adj., plēnus -a -um (w. gen./abl.)
+    neighboring/next, adj., fīnitimus -a -um (w. dat.)
+    like/similar, adj., similis -e (w. gen./dat.)
+    Jesus, noun, m, Jēsūs, Jēsū, Jēsū, Jēsūm, Jēsū, -, -, -, -, -
+    both...and, - , et...et
+    what, pro., quid
+    at dawn, phrs, prīmā lūce
+    city, noun, f, urbs, urbis, urbī, urbem, urbe, urbēs, urbum, urbibus, urbēs, urbibus
+    bridge, noun, m, pōns, pontis, pontī, pontem, ponte, pontēs, pontium, pontibus, pontēs, pontibus
+    standard/signal/sign, noun, n, signum, signī, signō, signum, signō, signa, signōrum, signīs, signa, signīs
+    horseman (pl. cavalry), noun, m, eques, equitis, equitī, equitem, equite, equitēs, equitum, equitibus, equitēs, equitibus
+    2nd decl. adj. endings (m/f), noun, m/f, grav-is, grav-is, grav-ī, grav-em, grav-ī, grav-ēs, grav-ium, grav-ibus, grav-ēs, grav-ibus
+    2nd decl. adj. endings (n), noun, n, grav-e, grav-is, grav-ī, grav-e, grav-ī, grav-ia, grav-ium, grav-ibus, grav-ia, grav-ibus`, //lesson 8
+
+    `1st conj present: praise, verb, laudō 1st tr., laud-ō, laud-ās, laud-at, laud-āmus, laud-ātis, laud-ant
+    to praise, vpp., 1 tr., laudō/laudāre/laudāvī/laudātus
+    to seize, vpp., 1 tr., occupō/occupāre/occupāvī/occupātus
+    to attack/assault, vpp., 1 tr., oppugnō/oppugnāre/oppugnāvī/oppugnātus
+    to beg/pray, vpp., 1 tr., ōrō/ōrāre/ōrāvī/ōrātus
+    to prepare/get ready,vpp., 1 tr., parō/parāre/parāvī/parātus
+    to fight, vpp., 1 tr., pugnō/pugnāre/pugnāvī/pugnātus
+    to overcome/conquer/surpass, vpp., 1 tr., superō/superāre/superāvī/superātus
+    to carry, vpp., 1 tr., portō/portāre/portāvī/portātus
+    centurion, noun, m, centuriō, centuriōnis, centuriōnī, centuriōnem, centuriōne, centuriōnēs, centuriōnum, centuriōnibus, centuriōnēs, centuriōnibus
+    number, noun, m, numerus, numerī, numerō, numerum, numerō, numerī, numerōrum, numerīs, numerōs, numerīs
+    1st conj imperfect: was praising, verb, laudō 1st tr., laud-ābam, laud-ābās, laud-ābat, laud-ābāmus, laud-ābātis, laud-ābant
+    1st conj future: will praise, verb, laudō 1st tr., laud-ābō, laud-ābis, laud-ābit, laud-ābimus, laud-ābitis, laud-ābunt
+    to give, vpp., 1 tr., dō/dāre/dedī/datus
+    to call, vpp., 1 tr., vocō/vocāre/vocāvī/vocātus
+    meanwhile, adverb, interim
+    death, noun, f, mors, mortis, mortī, mortem, morte, mortēs, mortium, mortibus, mortēs, mortibus
+    winter quarters, noun, n, -, -, -, -, -, hīberna, hībernōrum, hībernīs, hīberna, hībernīs
+    where, adv., ubi
+    who, pron, quis
+    what, pron, quid
+    why, adv., cūr
+    place, noun, m, locus, locī, locō, locum, locō, loca, locōrum, locīs, loca, locīs
+    unfavorable/another's/foreign, adj., aliēnus -a -um`, //lesson 9
+
+    `2nd conj present: warn/advise, verb, moneō 2nd tr., mon-eō, mon-ēs, mon-et, mon-ēmus, mon-ētis, mon-ent
+    2nd conj imperfect: was warning/advising, verb, moneō 2nd tr., mon-ēbam, mon-ēbās, mon-ēbat, mon-ēbāmus, mon-ēbātis, mon-ēbant
+    2nd conj future : will warn/advise, verb, moneō 2nd tr., mon-ēbō, mon-ēbis, mon-ēbit, mon-ēbimus, mon-ēbitis, mon-ēbunt
+    to warn/advise, vpp., 2 tr., moneō/monēre/monuī/monitus
+    to fear, vpp., 2 tr., timeō/timēre/timuī/-
+    to have, vpp., 2 tr., habeō/habēre/habuī/habitus
+    arms, noun, n, -, -, -, -, -, arma, armōrum, armīs, arma, armīs`, // Lesson 10
+
+    `I/we, noun, -, ego, meī, mihi, mē, mē, nōs, nostrī/nostrum, nōbis, nōs, nōbis
+    to see, vpp., 1 tr., videō/vidēre/vīdī/vīsus
+    often, adv., saepe
+    you/you (all), noun, -, tū, tuī, tibi, tē, tē, vōs, vestrī/vestrum, vōbīs, vōs, vōbīs
+    to hold, vpp., 2 tr., teneō/tenēre/tenuī/tentus
+    to move, vpp., 2 tr., moveō/movēre/mōvī/mōtus
+    nevertheless, adv., tamen
+    nor/and...not, conj, neque
+    he/they, noun, m, is, ējus, eī, eum, eō, eī, eōrum, eīs, eōs, eīs
+    she/they, noun, f, ea, ējus, eī, eam, eā, eae, eārum, eīs, eās, eīs
+    it/they, noun, n, id, ējus, eī, id, eō, ea, eōrum, eīs, ea, eīs
+    him/her/itself/themselves, noun, -, -,suī, sibi, sē, sē, -, -, -, -, -
+    also, adv., etiam
+    for (conj.), conj, enim (postpositive)` // Lesson 11
   ];
 
-const flipSound = new Audio('flip.wav');
-const correctSound = new Audio('correct.mp3');
-const markButton = document.getElementById("markButton");
 
-// Preload the sounds by setting preload and forcing a load
-flipSound.preload = 'auto';
-flipSound.load();
-correctSound.preload = 'auto';
-correctSound.load();
+  const Lesson2 = [
+    `The sailor sees the gate., sent, Nauta portam videt.
+    Mary praises the sailor., sent, Marīa nautam laudat.
+    The sailor prays., sent, Nauta ōrat.
+    The sailors praise Mary., sent, Nautae Marīam laudant.
+    They see the forest., sent, Vident silvam.
+    Mary sees the victory., sent, Marīa victōriam videt.
+    The sailor’s forest is large., sent, Silva nautae magna est.
+    The sailor sees glory., sent, Nauta glōriam videt.
+    They praise the sailor’s glory., sent, Laudant glōriam nautae.
+    Mary praises the land., sent, Marīa terram laudat.
+    They pray in the province., sent, Ōrant in prōvinciā.
+    They see Mary’s victory., sent, Vident victōriam Marīae.
+    The sailor praises the province., sent, Nauta prōvinciam laudat.
+    Glory is not in the land., sent, Glōria in terrā nōn est.
+    The sailor’s gate is in the province., sent, Porta nautae in prōvinciā est.
+    The sailor praises the forest’s glory., sent, Nauta glōriam silvae laudat.
+    The sailors praise Mary's land., sent, Nautae terram Marīae laudant.
+    Mary sees the sailor’s gate., sent, Marīa portam nautae videt.
+    They praise the glory of the provinces., sent, Glōriam prōvinciārum laudant.
+    The sailor does not pray in the forest., sent, Nauta in silvā nōn ōrat.
+    Mary prays., sent, Marīa ōrat.`, //      Lesson 1
+    `The Roman is in the town., sent, Rōmānus in oppidō est.
+    The Romans inhabit Gaul., sent, Rōmānī Galliam incolunt.
+    The Christians are in Rome., sent, Christiānī in Rōmā sunt.
+    The Roman gave the servant the Christian's sword., sent, Rōmānus servō gladium Christiānī dedit.
+    The servant praises the friend., sent, Servus amīcum laudat.
+    The Romans conquered the Gauls., sent, Rōmānī Gallōs vīcērunt.
+    The sons are in the kingdom., sent, Fīliī in rēgnō sunt.
+    The Christian gave the servant a reward., sent, Christiānus servō praemium dedit.
+    Christians are sons of the kingdom., sent, Christiānī sunt fīliī rēgnī.
+    Christians are sons of God., sent, Christiānī sunt fīliī Deī.
+    God is in heaven., sent, Deus in caelō est.
+    The Gauls are not in the province., sent, Gallī in prōvinciā nōn sunt.
+    The Christians see the kingdom., sent, Christiānī rēgnum vident.
+    The swords are in the town., sent, Gladiī in oppidō sunt.
+    Christians praise the victory of God., sent, Christiānī victōriam Deī laudant.
+    The town is in the province., sent, Oppidum in prōvinciā est.
+    The danger is in the war., sent, Perīculum in bellō est.
+    The Christians are not in Gaul., sent, Christiānī in Galliā nōn sunt.
+    The servant and the son are friends., sent, Servus et fīlius sunt amīcī.
+    On account of the war, the Romans gave the servants swords., sent, Propter bellum Rōmānī servīs gladiōs dedērunt.
+    I am in the Roman town., sent, In oppidō Rōmānō sum.
+    We are in Gaul., sent, In Galliā sumus.
+    The Romans with the Gauls conquered the Christians., sent, Rōmānī cum Gallīs Christiānōs vīcērunt.
+    After the war, the Roman gave the sailor the town., sent, Post bellum Rōmānus nautae oppidum dedit.
+    The Romans conquered the Gauls, and so the Gauls live in the forest., sent, Rōmānī Gallōs vīcērunt, itaque Gallī in silvā incolunt.
+    The Gauls inhabit Gaul, but the Romans inhabit Rome., sent, Gallī Galliam incolunt, sed Rōmānī Rōmam incolunt.
+    The Romans praise the Roman empire., sent, Rōmānī imperium Rōmānum laudant.
+    The Christians are with the Gauls in the forest., sent, Christiānī cum Gallīs in silvā sunt.
+    The town's dangers are on account of the war., sent, Perīcula oppidī propter bellum sunt.
+    The Christians praise the royal power of heaven., sent, Christiānī potestātem rēgiam caelī laudant.
+    War is in the town, and so the Christians are in the forest., sent, Bellum in oppidō est, itaque Christiānī in silvā sunt.
+    God's son and Christians conquer., sent, Fīlius Deī et Christiānī vīcērunt.
+    Christians are friends of Christ., sent, Christiānī sunt amīcī Chrīstī.
+    Christ's kingdom conquers Rome., sent, Rēgnum Chrīstī Rōmam vincit.
+    God and Christ gave rewards., sent, Deus et Chrīstus praemia dedērunt.
+    The Romans gave rewards to the sailors, but not to the Gauls., sent, Rōmānī nautīs praemia dedērunt, sed nōn Gallīs.
+    You (all) are with the Gauls., sent, Vōs cum Gallīs estis.
+    Christians praise Christ because Christ is God., sent, Christiānī Chrīstum laudant quia Chrīstus est Deus.
+    God and Christ inhabit heaven., sent, Deus et Chrīstus caelum incolunt.`, // Lesson 2
+    `The men see the road., sent, Hominēs viam vident.
+    The king gave the law., sent, Rēx lēgem dedit.
+    The leaders gave the truth., sent, Prīncipēs vēritātem dedērunt.
+    The commander praises the general., sent, Imperātor imperātōrem laudat.
+    The soldiers praise the leader., sent, Mīlitēs ducem laudant.
+    The peace is in the nation., sent, Pāx in populō est.
+    The kings are in the world., sent, Rēgēs in mundō sunt.
+    The tribes inhabit the hills., sent, Gentēs colles incolunt.
+    You (all) see the mountain., sent, Vidētis montem.
+    The generals conquered the people., sent, Imperātōrēs populum vīcērunt.
+    The voice was in the light., sent, Vōx in lūce erat.
+    The brothers were on the road., sent, Frātrēs in viā erant.
+    The mother is., sent, Māter est.
+    The fathers are., sent, Pātrēs sunt.
+    The people praise the truth., sent, Populus vēritātem laudat.
+    The commanders praise the soldiers., sent, Imperātōrēs mīlitēs laudant.
+    The general gave the law to the people., sent, Imperātor lēgem populō dedit.
+    The tribes were., sent, Gentēs erant.
+    The soldiers see the river., sent, Mīlitēs flūmen vident.
+    The road is in the hill., sent, Via in colle est.
+    The journey was long., sent, Iter longum erat.
+    The law is the king's enemy., sent, Lēx est hostis rēgis.
+    The leader is the king., sent, Dux est rēx.
+    The light of truth is peace., sent, Lūx vēritātis est pāx.
+    The general and the king conquered the Romans' enemies., sent, Imperātor et rēx hostēs Rōmānōrum vīcērunt.
+    The way of peace is the way of Christ., sent, Via pācis est via Chrīstī.
+    Christ is a man of peace and light and truth., sent, Chrīstus est vir pācis et lūcis et vēritātis.
+    The courage of Caesar gave the people safety., sent, Virtūs Caesaris populō tūtēlam dedit.
+    The voice of Christ gave truth and salvation to men., sent, Vōx Chrīstī vēritātem et salūtem hominibus dedit.
+    The king praised the courage of the soldiers., sent, Rēx virtūtem mīlitum laudāvit.
+    The soldiers and the general constructed roads., sent, Mīlitēs et imperātor viās mūnīvērunt.
+    The king fortified the hills on account of the slaughter of the soldiers., sent, Rēx colles propter caedem mīlitum mūnīvit.
+    The people inhabited the forest but the enemies inhabited the town., sent, Populus silvam incoluit sed hostēs oppidum incoluērunt.
+    A part of the tribe killed the Christians., sent, Pars gentis Christīanōs necāvit.
+    The Gauls inhabited the hills and the mountains., sent, Gallī colles et montēs incoluērunt.
+    The Christians prayed on account of the slaughter of the Gauls., sent, Christīanī propter caedem Gallōrum ōrāvērunt.
+    God the Father gave a kingdom to God the Son., sent, Deus Pater Deō Fīliō rēgnum dedit.
+    The general and the general's brother prayed to God., sent, Imperātor et frāter imperātōris Deum ōrāvērunt.
+    The voice of the people is not the voice of God., sent, Vōx populī nōn est vōx Deī.
+    The clamor of the people is not the voice of truth., sent, Clāmor populī nōn est vōx vēritātis.
+    The chief of the Gauls killed Caesar's general., sent, Prīnceps Gallōrum imperātōrem Caesaris necāvit.
+    The column fortified the town because the Gauls killed the general., sent, Agmen oppidum mūnīvit quod Gallī imperātōrem necāvērunt.
+    The Roman army was on the road., sent, Exercitus Rōmānus in viā erat.
+    God gave Christians the name of Christ., sent, Deus Christīanīs nōmen Chrīstī dedit.
+    The leading man heard the clamor of the people., sent, Prīnceps clāmōrem populī audīvit.
+    The tribe was the enemy of the Roman leader., sent, Gēns erat hostis ducis Rōmānī.
+    The wounds of Christ were the glories of Christ., sent, Vulnera Chrīstī erant glōriae Chrīstī.
+    Christians praise the wounds of Christ because Christ's victory is the salvation of the world., sent, Christīanī vulnera Chrīstī laudant quia victōria Chrīstī est salūs mundī.
+    Christians are the body of Christ., sent, Christīanī sunt corpus Chrīstī.
+    The river was in the mountains and the hills., sent, Flūmen in montibus et collibus erat.
+    God did not praise the slaughter of the Christians., sent, Deus caedem Christīanōrum nōn laudāvit.
+    The world did not pray to Christ, but Christians prayed to Christ., sent, Mundus Chrīstum nōn ōrāvit, sed Christīanī Chrīstum ōrāvērunt.
+    The mother, the father, and the brother were Christians., sent, Māter, pater, et frāter Christīanī erant.
+    The enemy's tribe saw the slaughter of the Roman soldiers., sent, Gēns hostis caedem mīlitum Rōmānōrum vīdit.`, // Lesson 3
+    `The arrival of Christ was the victory of God., sent, Adventus Chrīstī erat victōria Deī.
+    The cavalry made an attack in the mountains., sent, Equitātus impetum in montibus fēcit.
+    The army made a journey., sent, Exercitus iter fēcit.
+    There is safety in the harbor on account of the Roman army., sent, Tūtēla in portū est propter exercitum Rōmānum.
+    The fear of people is not the fear of God., sent, Timor populī nōn est timor Deī.
+    The sailors’ safety however was in the harbor., sent, Tūtēla nautārum tamen in portū erat.
+    The army came into the hills with the calvary., sent, Exercitus cum equitātū in colles vēnit.
+    Light and truth came with the arrival of Christ., sent, Lūx et vēritās cum adventū Chrīstī vēnērunt.
+    The mother and father came into the city., sent, Māter et pater in urbem vēnērunt.
+    The arrival of the army was the victory of the senate., sent, Adventus exercitūs erat victōria senātūs.
+    Christ came into the world but the peoples of the world killed Christ., sent, Chrīstus in mundum vēnit sed populī mundī Chrīstum necāvērunt.
+    The spirit of Christ is not the spirit of fear., sent, Spīritus Chrīstī nōn est spīritus timōris.
+    The general praised the army's attack., sent, Dux impetum exercitūs laudāvit.
+    The senate saw the calvary's attack., sent, Senātus impetum equitātūs vīdit.`, // Lesson4
+    `Hope came with the army., sent, Spēs cum exercitū vēnit.
+    The soldiers saw the battle lines., sent, Mīlitēs aciēs vīdērunt.
+    They fortified the battle lines., sent, Aciēs mūnīvērunt.
+    They gave thanks on account of the battle lines., sent, Propter aciēs grātiās dedērunt.
+    They placed hope in the army., sent, Spem in exercitū posuērunt.
+    They came into the camp., sent, In castra vēnērunt.
+    The hope of the Romans is the power of the Roman army, but the faithfulness of Christ is the hope of Christians., sent, Spēs Rōmānōrum est potentia exercitūs Rōmānī, sed fidēs Chrīstī est spēs Christīanōrum.
+    Christ came with faith, hope, light, and truth., sent, Chrīstus cum fidē, spē, lūce, et vēritāte vēnit.
+    The Christians placed faith in Christ., sent, Christīanī fidēm in Chrīstō posuērunt.
+    The Roman senate and the Roman army placed hope in the war., sent, Senātus Rōmānus et exercitus Rōmānus spem in bellō posuērunt.
+    The Roman soldiers fortified the battle lines., sent, Mīlitēs Rōmānī aciēs mūnīvērunt.
+    The Roman people saw the hope and faith of the Christians., sent, Populus Rōmānus spem et fidem Christīanōrum vīdit.
+    The soldiers say the thing in the forest., sent, Mīlitēs rem in silvā dīcunt.
+    The arrival of Christ gave hope to the people of the world., sent, Adventus Chrīstī populō mundī spem dedit.`, //Lesson5
+    `They pitched camp in Gaul., sent, Castra in Galliā posuērunt.
+    They gave thanks to God., sent, Deō grātiās dedērunt.
+    The troops came into the town., sent, Mīlitēs in oppidum vēnērunt.
+    They placed the baggage in the camp., sent, Impedīmenta in castrīs posuērunt.
+    The Romans pitched camp on the hill., sent, Rōmānī castra in colle posuērunt.
+    The Gauls gave thanks., sent, Gallī grātiās dedērunt.
+    They gave thanks in the harbor., sent, In portū grātiās dedērunt.
+    The troops were on the road., sent, Mīlitēs in viā erant.
+    They placed the troops behind the hill., sent, Mīlitēs post collem posuērunt.
+    They pitched camp before the river., sent, Castra ante flūmen posuērunt.
+    Abundance came with the army., sent, Cōpia cum exercitū vēnit.
+    They placed the supply in the town., sent, Cōpiam in oppidō posuērunt.
+    The camp was near the port., sent, Castra prope portum erant.
+    Many troops came., sent, Multī mīlitēs vēnērunt.
+    He gave favor to the general., sent, Ducī favōrem dedit.
+    The soldiers pitched the camp., sent, Mīlitēs castra posuērunt.
+    The Romans gave thanks., sent, Rōmānī grātiās dedērunt.
+    The troops and the calvary came with the baggage., sent, Mīlitēs et equitātus cum impedīmentīs vēnērunt.`, //Lesson6
+    `The great wall is high., sent, Mūrus magnus est altus.
+    The Roman master gave grain., sent, Dominus Rōmānus frūmentum dedit.
+    The legion was in the narrow road., sent, Legiō in viā angustā erat.
+    The Christians are safe., sent, Christīanī sunt tūtī.
+    The deep river is long., sent, Flūmen altum est longum.
+    The remaining troops came., sent, Reliquī mīlitēs vēnērunt.
+    They pitched camp in front of the wall., sent, Castra ante mūrum posuērunt.
+    Much grain is in the camp., sent, Multum frūmentum in castrīs est.
+    The Roman wall was high., sent, Mūrus Rōmānus altus erat.
+    The legions are great., sent, Legiōnēs magnae sunt.
+    The good master is in the city., sent, Dominus bonus in urbe est.
+    The Romans were in want of grain., sent, Rōmānī frūmentī egēbant.
+    The Christian legions are safe., sent, Legiōnēs Christiānae tūtae sunt.
+    The bad master was not safe., sent, Dominus malus nōn erat tūtus.
+    There was a scarcity of grain., sent, Inopia frūmentī erat.
+    The good master praises the large Roman legion., sent, Dominus bonus legiōnem Rōmānam magnam laudat.
+    The Christians' grain was in the camp., sent, Frūmentum Christīanōrum erat in castrīs.
+    The good Christians gave the Romans much grain., sent, Christīanī bonī Rōmānīs multum frūmentum dedērunt.
+    Christians are holy because Christ is holy., sent, Christīanī sunt sanctī quia Chrīstus est sanctus.
+    The first grain is good., sent, Prīmum frūmentum est bonum.
+    The abundance of grain is good but the scarcity of grain is bad., sent, Cōpia frūmentī bona est sed inopia frūmentī mala est.
+    The Christian came on the narrow road., sent, Christīanus in viā angustā vēnit.
+    Christ is the good lord of Christians., sent, Chrīstus est dominus bonus Christīanōrum.
+    The army gave the remaining grain to the servants., sent, Exercitus reliquum frūmentum servīs dedit.
+    The mountains are high and the roads are narrow., sent, Montēs sunt altī et viae sunt angustae.
+    Christ is not safe but Christ is good., sent, Chrīstus nōn est tūtus sed Chrīstus est bonus.
+    The Christians gave grain to the servants on account of Christ., sent, Propter Chrīstum Christīanī servīs frūmentum dedērunt.
+    Christ is the good, holy lord of Christians., sent, Chrīstus est dominus bonus et sanctus Christīanōrum.
+    The Roman wall was long., sent, Mūrus Rōmānus longus erat.
+    There was no hope on account of the scarcity of the remaining grain., sent, Propter inopiam reliquī frūmentī spēs nōn erat.
+    The large baggage train came into the high hills and forests of Gaul., sent, Impedīmenta magna in colles altōs et silvās Galliae vēnērunt.
+    The troops give thanks., sent, Mīlitēs grātiās agunt.`, //Lesson7
+    `The serious wounds killed the short soldier., sent, Vulnera gravia mīlitem brevem necāvērunt.
+    The noble commander gave the enemy a wound., sent, Dux nōbilis hostī vulnus dedit.
+    All the strong sailors see the good land., sent, Omnēs validī nautae terram bonam vident.
+    The common soldiers came from the neighboring town, but the general came from Rome., sent, Mīlitēs commūnēs ab oppidō vīcīnō vēnērunt, sed dux ex Rōmā vēnit.
+    Jesus was a common man, but he was the king of heaven., sent, Iēsus erat vir commūnis, sed erat rēx caelī.
+    Both the sailors and the soldiers came from similar cities., sent, Et nautae et mīlitēs ex urbibus similibus vēnērunt.
+    At dawn, the horsemen came onto the bridge., sent, Prīmā lūce equitēs in pontem vēnērunt.
+    All bad men are desirous of war., sent, Omnēs virī malī bellī sunt cupidī.
+    The calvary put a sign in front of the bridge., sent, Equitātus signum ante pontem posuit.
+    There is a bridge in the neighboring city., sent, Pons in urbe vīcīnā est.
+    Jesus is full of grace and truth., sent, Iēsus plēnus grātiā et vēritāte est.
+    All cities are full of grain., sent, Omnēs urbēs plēnae frūmentī sunt.
+    War is easy but peace is difficult., sent, Bellum facile est sed pāx difficilis est.
+    Bad men are common but good men are not common., sent, Virī malī sunt commūnēs sed virī bonī nōn sunt commūnēs.
+    Bad men praise war and glory. God, however, praises peace and truth., sent, Virī malī bellum et glōriam laudant. Deus autem pācem et vēritātem laudat.
+    At dawn, the tribe's chief gave Caesar the horseman's sword., sent, Prīmā lūce prīnceps gentis Caesari gladium equitis dedit.
+    What did the horseman give the general?, sent, Quid eques ducī dedit?
+    What is the signal?, sent, Quid est signum?
+    Every good, strong horseman is part of the calvary., sent, Omnis eques bonus et validus pars equitātūs est.
+    The father is tall, but the son is short., sent, Pater est altus, sed fīlius est brevis.
+    The mother is strong, and the father is noble., sent, Māter est valida, et pater est nōbilis.`,//Lesson8
+    `The centurion was praising the winter quarters., sent, Centuriō hīberna laudābat.
+    The large army seizes the city., sent, Magnus exercitus urbem occupat.
+    The calvary was attacking the brave centurion., sent, Equitēs centuriōnem fortem oppugnābant.
+    Meanwhile, the soldiers were fighting with the enemy., sent, Interim mīlitēs cum hoste pugnābant.
+    The people were praising the death of the bad king., sent, Populus mortem rēgis malī laudābat.
+    Christians prepare for the coming of Christ., sent, Christīanī adventum Chrīstī parant.
+    Christians overcome the world., sent, Christīanī mundum vīcērunt.
+    The centurion sees the wounds and death of Jesus., sent, Centuriō vulnera et mortem Jēsū videt.
+    Where does the centurion prepare the winter quarters?, sent, Ubi centuriō hīberna parat?
+    Who carries the foreign soldier?, sent, Quis mīlitem externum portat?
+    Why does the centurion fight with the general?, sent, Cūr centuriō cum duce pugnat?
+    Where is the holy place in the city?, sent, Ubi est locus sanctus in urbe?
+    God gives Christians a place in heaven., sent, Deus Christīanīs locum in caelō dat.
+    What do the sailors carry?, sent, Quid nautae portant?
+    Who was praising the sailors?, sent, Quis nautās laudābat?
+    Who was fighting with the centurion?, sent, Quis cum centuriōne pugnābat?
+    The legion prepares the swords., sent, Legiō gladiōs parat.
+    The general will give the signal to the army., sent, Dux exercituī signum dabit.
+    The Roman army will prepare to fight., sent, Exercitus Rōmānus pugnāre parābit.
+    The general was calling the soldiers., sent, Dux mīlitēs vocābat.
+    The good king was fighting with the foreign soldiers., sent, Rēx bonus cum aliēnīs mīlitibus pugnābat.
+    Meanwhile, the foreign senate made good laws., sent, Interim senātus externus lēgēs bonās fēcit.`,//Lesson9
+    `God warns the bad king, sent, Deus regem malum monet.
+    The bad king did not fear the holy God, sent, Rex malus Deum sanctum nōn timēbat.
+    The strong soldiers gave arms and swords to the Gauls, sent, Mīlitēs validī Gallīs arma et gladiōs dedērunt.
+    God will give rewards to Christians in heaven, sent, Deus praemia Christīanīs in caelō dabit.
+    The senate was warning the bad king before the war, sent, Senātus regem malum ante bellum monēbat.
+    The neighboring town did not fear the Roman army, sent, Oppidum vīcīnum exercitum Rōmānum nōn timēbat.
+    The general gave arms to the horseman, sent, Dux equitī arma dedit.
+    He has a serious wound, sent, Vulnus grave habet.
+    They have many long swords, sent, Gladiōs multōs longōs habent.
+    The people will have many dangers, sent, Populus multa perīcula habēbit.
+    The army will warn the enemies' town, sent, Exercitus oppidum hostium monēbit.
+    The Gauls were fearing the Roman empire, sent, Gallī imperium Rōmānum timēbant.
+    The sailors were praising the king, sent, Nautae rēgem laudābant.`, //Lesson10
+    `I see you. You see me., sent, Tē videō. Mē vidēs.
+    She was seeing them. They were seeing her., sent, Illa eōs vidēbat. Eam vidēbant.
+    She will see him. He will see her., sent, Eum vidēbit. Eam vidēbit.
+    I give it to him. You give it to them., sent, Eī id dō. Eīs id das.
+    They were giving it to him. He was giving it to them., sent, Eī id dabant. Eīs id dabat.
+    They will give it to her. She will give it to them., sent, Eī id dabunt. Eīs id dabit.
+    Also, you all often hold it., sent, Etiam id saepe tenētis.
+    Nevertheless, they will give it to you all., sent, Tamen vōbīs id dabunt.
+    What did she give to him? What did he give to her?, sent, Quid ea eī dedit? Quid is eī dedit?
+    He is moving into the forest, therefore she will move into the city., sent, In silvam movet, igitur in urbem movēbit.
+    They are holding the sword; meanwhile, I am holding the grain., sent, Gladium tenent; interim frūmentum teneō.
+    He will give me his sword, for I will give him my sword., sent, Mihi gladium suum dabit, nam eī gladium meum dabo.
+    She will give them her sword, for they will give her their sword., sent, Eīs gladium suum dabit, nam eī gladium suum dabunt.
+    Christians give themselves to Christ, for Christ gives himself to Christians., sent, Christīanī sē Christō dant, nam Chrīstus sē Christīanīs dat.
+    She gives herself to Christ, for Christ gives himself to her., sent, Sē Christō dat, nam Chrīstus sē eī dat.
+    I give myself to Christ, for Christ gives himself to me., sent, Mē Christō dō, nam Chrīstus sē mihi dat.
+    We give ourselves to Christ, for Christ gives himself to us., sent, Nōs Christō damus, nam Chrīstus sē nōbīs dat.
+    You give yourself to Christ, for Christ gives himself to you., sent, Tē Christō dās, nam Chrīstus sē tibi dat.
+    You all give yourselves to Christ, for Christ gives himself to you all., sent, Vōs Christō datis, nam Chrīstus sē vōbīs dat.
+    Often, I see myself in my son., sent, Saepe mē in meō fīliō videō.` //Lesson11
+  ];
+
+  const flipSound = new Audio('flip.wav');
+  const correctSound = new Audio('correct.mp3');
+  const markButton = document.getElementById("markButton");
+
+  // Preload the sounds by setting preload and forcing a load
+  flipSound.preload = 'auto';
+  flipSound.load();
+  correctSound.preload = 'auto';
+  correctSound.load();
+
+  let mode = "en-to-la";
+  let dictType = "words";
+  let dictionary = [];
+  let currentEntry = null;
+  let shuffledDeck = [];
+  let cardIndex = -1;
+  let markedCards = [];
 
 
-    let dictionary = [];
-    let currentEntry = null;
-    let shuffledDeck = [];
-    let cardIndex = -1;
-    let markedCards = [];
+  function loadSelectedLessons() {
+    const selectedOptions = Array.from(lessonSelect.selectedOptions);
 
-    function shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array;
+    if (selectedOptions.some(opt => opt.value === 'marked')) {
+      dictionary = [...markedCards];
+    } else {
+      const lessonSource = dictType === 'words' ? Lesson : Lesson2;
+      const selectedLessons = selectedOptions.map(option => lessonSource[option.value]);
+      dictionary = selectedLessons.flatMap(parseLesson);
     }
 
-    function parseLesson(rawText) {
-      const lines = rawText.trim().split('\n').filter(l => l.trim() !== '');
-      return lines.map(line => {
-        const parts = line.split(',');
-        const english = parts[0].trim();
-        const part = parts[1].trim();
-        const latin = parts.slice(2).map(s => s.trim());
-        return { english, part, latin };
-      });
+    shuffledDeck = shuffle([...dictionary]);
+    cardIndex = -1;
+
+    if (shuffledDeck.length === 0) {
+      document.getElementById("cardFront").innerHTML = `<div class="centered-content" style="color: #888;">This deck is empty</div>`;
+      document.getElementById("cardBack").innerHTML = `<div class="centered-content" style="color: #aaa;">This deck is empty</div>`;
+      document.getElementById("cardCounter").textContent = `0 / 0`;
+      return;
     }
 
-    // Populate dropdown
-    const lessonSelect = document.getElementById('lessonSelect');
-    // Add special option for marked cards at the top of the menu
-const markedOption = document.createElement('option');
-markedOption.value = 'marked';
-markedOption.textContent = '★ Marked Cards';
-lessonSelect.appendChild(markedOption);
-    Lesson.forEach((_, i) => {
-      const option = document.createElement('option');
-      option.value = i;
-      option.textContent = `Lesson ${i + 1}`;
-      if (i === 0) option.selected = true; // Preselect first
-      lessonSelect.appendChild(option);
+    showNextCard();
+  }
+
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  function parseLesson(rawText) {
+    const lines = rawText.trim().split('\n').filter(l => l.trim() !== '');
+    return lines.map(line => {
+      const parts = line.split(',');
+      const english = parts[0].trim();
+      const part = parts[1].trim();
+      const latin = parts.slice(2).map(s => s.trim());
+      return { english, part, latin };
     });
+  }
 
+  // Populate dropdown
+  const lessonSelect = document.getElementById('lessonSelect');
+  // Add special option for marked cards at the top of the menu
+  const markedOption = document.createElement('option');
+  markedOption.value = 'marked';
+  markedOption.textContent = '★ Marked Cards';
+  lessonSelect.appendChild(markedOption);
+  Lesson.forEach((_, i) => {
+    const option = document.createElement('option');
+    option.value = i;
+    option.textContent = `Lesson ${i + 1}`;
+    if (i === 0) option.selected = true; // Preselect first
+    lessonSelect.appendChild(option);
+  });
 
-    lessonSelect.addEventListener('change', () => {
-      const selectedOptions = Array.from(lessonSelect.selectedOptions);
-
-      if (selectedOptions.some(opt => opt.value === 'marked')) {
-        // Use marked cards only
-        dictionary = [...markedCards];
-      } else {
-        // Use selected lessons
-        const selectedLessons = selectedOptions.map(option => Lesson[option.value]);
-        dictionary = selectedLessons.flatMap(lessonData => parseLesson(lessonData));
-      }
-
-      shuffledDeck = shuffle([...dictionary]);
-      cardIndex = -1;
-      if (shuffledDeck.length === 0) {
-  // Show empty message on both front and back
-  document.getElementById("cardFront").innerHTML = `
-    <div class="centered-content" style="color: #888;">This deck is empty</div>`;
-  document.getElementById("cardBack").innerHTML = `
-    <div class="centered-content" style="color: #aaa;">This deck is empty</div>`;
-    document.getElementById("cardCounter").textContent = `0 / 0`;
-  return;
-}
-      showNextCard();
+  document.querySelectorAll('input[name="mode"]').forEach((radio) => {
+    radio.addEventListener('change', (e) => {
+      mode = e.target.value;
+      updateCardDisplay(); // Refresh card display to reflect new mode
     });
+  });
+
+  document.querySelectorAll('input[name="dict"]').forEach((radio) => {
+    radio.addEventListener('change', (e) => {
+      dictType = e.target.value;
+      loadSelectedLessons();
+    });
+  });
+
+  lessonSelect.addEventListener('change', loadSelectedLessons);
+
 
 
 
   // Simulate user selecting the first option by triggering the event handler
-const event = new Event('change');
-lessonSelect.dispatchEvent(event);
+  const event = new Event('change');
+  lessonSelect.dispatchEvent(event);
 
-document.getElementById("markButton").addEventListener("click", () => {
-  if (!currentEntry) return;
+  document.getElementById("markButton").addEventListener("click", () => {
+    if (!currentEntry) return;
 
-  // Check if it's already marked to prevent duplicates
-  const exists = markedCards.some(card =>
-    card.english === currentEntry.english &&
-    JSON.stringify(card.latin) === JSON.stringify(currentEntry.latin)
-  );
-  if (!exists) {
-    markedCards.push(currentEntry);
-  }
-  // Save original color
+    // Check if it's already marked to prevent duplicates
+    const exists = markedCards.some(card =>
+      card.english === currentEntry.english &&
+      JSON.stringify(card.latin) === JSON.stringify(currentEntry.latin)
+    );
+    if (!exists) {
+      markedCards.push(currentEntry);
+    }
+    // Save original color
     const originalColor = markButton.style.backgroundColor;
 
     // Change color to flash color
@@ -467,41 +799,55 @@ document.getElementById("markButton").addEventListener("click", () => {
       markButton.style.backgroundColor = originalColor;
     }, 800);
 
-});
+  });
 
-    document.getElementById("flashcard").addEventListener("click", function() {
-      this.classList.toggle("flipped");
-      flipSound.currentTime = 0; // rewind if already playing
-      flipSound.play();
-    });
+  document.getElementById("flashcard").addEventListener("click", function() {
+    this.classList.toggle("flipped");
+    flipSound.currentTime = 0; // rewind if already playing
+    flipSound.play();
+  });
 
-    document.getElementById("lastButton").addEventListener("click", showLastCard);
-    document.getElementById("nextButton").addEventListener("click", showNextCard);
+  document.getElementById("lastButton").addEventListener("click", showLastCard);
+  document.getElementById("nextButton").addEventListener("click", showNextCard);
 
-    function updateCardDisplay() {
-      document.getElementById("cardFront").innerHTML = `
-        <div class="centered-content">${currentEntry.english}</div>`;
+  function updateCardDisplay() {
+    let front, back;
 
-      let formattedLatin;
+    if (mode === "en-to-la") {
+      front = `<div class="centered-content">${currentEntry.english}</div>`;
+
       switch (currentEntry.part) {
         case 'noun':
-          formattedLatin = formatNoun(currentEntry);
+          back = formatNoun(currentEntry);
           break;
-          case 'verb':
-            formattedLatin = formatVerb(currentEntry);
-            break;
+        case 'verb':
+          back = formatVerb(currentEntry);
+          break;
         default:
-          formattedLatin = `<div class="centered-content">${currentEntry.latin.join(" ")}</div>`;
+          back = `<div class="centered-content">${currentEntry.latin.join(" ")}</div>`;
           break;
       }
-
-      document.getElementById("cardBack").innerHTML = formattedLatin;
-      document.getElementById("flashcard").classList.remove("flipped");
-      document.getElementById("cardCounter").textContent = `${cardIndex + 1} / ${shuffledDeck.length}`;
+    } else {
+      // Latin → English
+      front = (() => {
+        switch (currentEntry.part) {
+          case 'noun': return formatNoun(currentEntry);
+          case 'verb': return formatVerb(currentEntry);
+          default: return `<div class="centered-content">${currentEntry.latin.join(" ")}</div>`;
+        }
+      })();
+      back = `<div class="centered-content">${currentEntry.english}</div>`;
     }
 
+    document.getElementById("cardFront").innerHTML = front;
+    document.getElementById("cardBack").innerHTML = back;
+    document.getElementById("flashcard").classList.remove("flipped");
+    document.getElementById("cardCounter").textContent = `${cardIndex + 1} / ${shuffledDeck.length}`;
+  }
 
-    function showLastCard() {
+
+
+  function showLastCard() {
     if (shuffledDeck.length === 0) return;
 
     cardIndex--;
@@ -518,94 +864,94 @@ document.getElementById("markButton").addEventListener("click", () => {
 
 
   function showNextCard() {
-if (shuffledDeck.length === 0) return;
+    if (shuffledDeck.length === 0) return;
 
 
-cardIndex++;
-if (cardIndex >= shuffledDeck.length) {
-  cardIndex = 0; // loop to first
-}
-currentEntry = shuffledDeck[cardIndex];
-updateCardDisplay();
-correctSound.currentTime = 0;
-correctSound.play();
-}
+    cardIndex++;
+    if (cardIndex >= shuffledDeck.length) {
+      cardIndex = 0; // loop to first
+    }
+    currentEntry = shuffledDeck[cardIndex];
+    updateCardDisplay();
+    correctSound.currentTime = 0;
+    correctSound.play();
+  }
 
 
-    function formatNoun(entry) {
-      let latinData = entry.latin;
+  function formatNoun(entry) {
+    let latinData = entry.latin;
 
-      // Convert to array if it's a string
-      if (typeof latinData === "string") {
-        latinData = latinData.replace(';', ',').split(',').map(s => s.trim());
-      }
+    // Convert to array if it's a string
+    if (typeof latinData === "string") {
+      latinData = latinData.replace(';', ',').split(',').map(s => s.trim());
+    }
 
-      const [gender, ...forms] = latinData;
+    const [gender, ...forms] = latinData;
 
-      const genderFull = {
-        m: "Masculine",
-        f: "Feminine",
-        n: "Neuter"
-      }[gender.toLowerCase()] || "N/A";
+    const genderFull = {
+      m: "Masculine",
+      f: "Feminine",
+      n: "Neuter"
+    }[gender.toLowerCase()] || "N/A";
 
-      const singularForms = forms.slice(0, 5);
-      const pluralForms = forms.slice(5, 10);
+    const singularForms = forms.slice(0, 5);
+    const pluralForms = forms.slice(5, 10);
 
-      return `
-      <div style="display: flex; flex-direction: column; height: 100%; justify-content: flex-start; align-items: center; gap: 0.5em;">
-        <div style="font-weight: bold;">${genderFull}</div>
-        <table style="border-collapse: collapse; width: 100%; max-width: 280px;">
-          <thead>
-            <tr style="font-style: italic;">
-              <th style="padding: 0.25em 1em; text-align: center;">Singular</th>
-              <th style="padding: 0.25em 1em; text-align: center;">Plural</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${[0,1,2,3,4].map(i => `
-              <tr>
-                <td style="padding: 0.25em 1em; text-align: center;">${singularForms[i]}</td>
-                <td style="padding: 0.25em 1em; text-align: center;">${pluralForms[i]}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
+    return `
+    <div style="display: flex; flex-direction: column; height: 100%; justify-content: flex-start; align-items: center; gap: 0.5em;">
+    <div style="font-weight: bold;">${genderFull}</div>
+    <table style="border-collapse: collapse; width: 100%; max-width: 280px;">
+    <thead>
+    <tr style="font-style: italic;">
+    <th style="padding: 0.25em 1em; text-align: center;">Singular</th>
+    <th style="padding: 0.25em 1em; text-align: center;">Plural</th>
+    </tr>
+    </thead>
+    <tbody>
+    ${[0,1,2,3,4].map(i => `
+      <tr>
+      <td style="padding: 0.25em 1em; text-align: center;">${singularForms[i]}</td>
+      <td style="padding: 0.25em 1em; text-align: center;">${pluralForms[i]}</td>
+      </tr>
+      `).join('')}
+      </tbody>
+      </table>
       </div>
       `;
     }
 
     function formatVerb(entry) {
-  let latinData = typeof entry.latin === "string"
-    ? entry.latin.split(',').map(s => s.trim())
-    : entry.latin;
+      let latinData = typeof entry.latin === "string"
+      ? entry.latin.split(',').map(s => s.trim())
+      : entry.latin;
 
-  const [tense, ...forms] = latinData;
+      const [tense, ...forms] = latinData;
 
-  return `
-    <div style="display: flex; flex-direction: column; height: 100%; justify-content: flex-start; align-items: center; gap: 0.5em;">
+      return `
+      <div style="display: flex; flex-direction: column; height: 100%; justify-content: flex-start; align-items: center; gap: 0.5em;">
       <div style="font-weight: bold;">${tense}</div>
       <table style="border-collapse: collapse; width: 100%; max-width: 400px;">
-        <thead>
-          <tr style="font-style: italic;">
-            <th style="padding: 0.25em 1em; text-align: center;">Singular</th>
-            <th style="padding: 0.25em 1em; text-align: center;">Plural</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${[0,1,2].map(i => `
-            <tr>
-              <td style="padding: 0.25em 1em; text-align: center;">${forms[i]}</td>
-              <td style="padding: 0.25em 1em; text-align: center;">${forms[i + 3]}</td>
-            </tr>
-          `).join('')}
+      <thead>
+      <tr style="font-style: italic;">
+      <th style="padding: 0.25em 1em; text-align: center;">Singular</th>
+      <th style="padding: 0.25em 1em; text-align: center;">Plural</th>
+      </tr>
+      </thead>
+      <tbody>
+      ${[0,1,2].map(i => `
+        <tr>
+        <td style="padding: 0.25em 1em; text-align: center;">${forms[i]}</td>
+        <td style="padding: 0.25em 1em; text-align: center;">${forms[i + 3]}</td>
+        </tr>
+        `).join('')}
         </tbody>
-      </table>
-    </div>
-  `;
-}
+        </table>
+        </div>
+        `;
+      }
 
 
 
-  </script>
-</body>
-</html>
+      </script>
+    </body>
+    </html>
